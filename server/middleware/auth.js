@@ -1,16 +1,22 @@
-module.exports=(req,res,next)=>{
-    const jwt=require('jsonwebtoken')
-    const express=require('express')
-try {
-    const token = req.headers.authorization?.replace("Bearer ","")
-    console.log(token);
-    
-const decode = jwt.verify(token,process.env.MY_SECRET_KEY)
-if(!decode) res.status(401).json("Unauthorized Access!")
+const jwt = require('jsonwebtoken');
 
-} catch (error) {
-    console.log(error);
-    
-}
-next();
-}
+module.exports = (req, res, next) => {
+    try {
+        const token = req.headers.authorization?.replace("Bearer ", "");
+
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized Access: No token provided." });
+        }
+
+        const decoded = jwt.verify(token, process.env.MY_SECRET_KEY);
+
+        req.user = decoded; 
+        console.log("Authorized access!", decoded);
+        
+        next(); 
+
+    } catch (error) {
+        console.error("JWT Error:", error.message);
+        return res.status(401).json({ message: "Unauthorized Access: Invalid or expired token." });
+    }
+};

@@ -1,22 +1,48 @@
-module.exports = (dataStore) => {
-    const express = require('express');
-    const router = express.Router();
-    const client = require('../../../db');
-  
-    router.post('/', (req, res) => {
-      const { name, description, location,link } = req.body;
-      const sql = 'insert into organizations(name,description,location,link) values($1,$2,$3,$4) returning *';
-      
-      client.query(sql, [name, description, location,link])
-        .then((data) => {
-          res.json(data.rows[0]);
-          dataStore.orgData.push(data.rows[0]);
-        })
-        .catch(err => {
-          console.error(err);
-          res.status(500).json({ error: 'Internal server error' });
-        });
-    });
-  
-    return router;
-  };
+'use strict';
+
+const org = (sequelize, DataTypes) => {
+  const Org = sequelize.define('organizations', {
+    org_id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    name: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      unique: true
+    },
+    hashed_password: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
+    description: {
+      type: DataTypes.TEXT
+    },
+    location: {
+      type: DataTypes.STRING(40)
+    },
+    is_private: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    link: {
+      type: DataTypes.STRING(255)
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+  }, {
+    timestamps: true
+  });
+
+  return Org;
+};
+
+module.exports = org;

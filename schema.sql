@@ -1,50 +1,62 @@
 -- Organizations table 
 CREATE TABLE if not exists organizations (
-    id SERIAL PRIMARY KEY,
+    org_id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
+    email VARCHAR(50) UNIQUE NOT NULL,
+    hashed_password varchar(255) not null,
     description TEXT,
     location VARCHAR(40),
-    link VARCHAR(255)
-
+    is_private BOOLEAN DEFAULT FALSE,
+    link VARCHAR(255),
+    role TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 
 CREATE TABLE if not exists users (
-    id SERIAL PRIMARY KEY,
+    acc_id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     email VARCHAR(50) UNIQUE NOT NULL,
     hashed_password varchar(255) not null,
-    role varchar(20) default 'member' not null,
-    org_id INTEGER REFERENCES organizations(id) ON DELETE CASCADE
+    total_cb int
+);
+create table if not exists team_leaders(
+    acc_id integer references users(acc_id),
+    leader_id SERIAL PRIMARY key,
+    leader_cb integer,
+    is_assigned boolean,
+    role TEXT CHECK (role IN ('member', 'leader')),
+
+    org_id integer references organizations(org_id)
+
+
 );
 
+create table if not exists members(
+    acc_id integer references users(acc_id),
+    member_id SERIAL PRIMARY key,
+    member_cb integer,
+    is_assigned boolean,
+    role TEXT CHECK (role IN ('member', 'leader')),
 
--- CREATE TABLE if not exists tasks (
---     id SERIAL PRIMARY KEY,
---     title VARCHAR(50) NOT NULL,
---     description TEXT,
---     due_date DATE,
---     priority VARCHAR(50),
---     status VARCHAR(50) DEFAULT 'pending' ,
---     created_by integer references user(id) ON DELETE CASCADE,
---     assigned_to integer references user(id) on delete cascade,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
--- );
+    leader_id integer references team_leaders(leader_id),
+    org_id integer references organizations(org_id)
 
--- Organization assigns task to a Team Leader
--- CREATE TABLE if not exists org_task_assignments (
---     id SERIAL PRIMARY KEY,
---     task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE,
---     assigned_to_team_leader_id INTEGER REFERENCES team_leaders(id) ON DELETE CASCADE,
---     assigned_by_org_id INTEGER REFERENCES organizations(id) ON DELETE CASCADE,
---     assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
--- );
 
--- -- Team Leader assigns task to a Member
--- CREATE TABLE if not exists team_leader_task_assignments (
---     id SERIAL PRIMARY KEY,
---     task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE,
---     assigned_to_member_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
---     assigned_by_team_leader_id INTEGER REFERENCES team_leaders(id) ON DELETE CASCADE,
---     assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
--- );
+);
+
+create table if not exists tasks(
+    task_id SERIAL PRIMARY key,
+    task_start TIMESTAMP,
+    task_end TIMESTAMP,
+    is_mandatory boolean,
+    cb_points integer,
+    org_id integer references organizations(org_id)
+);
+create table if not exists user_tasks(
+task_id integer references tasks(task_id),
+acc_id integer references users(acc_id),
+org_id integer references organizations(org_id)    
+);
+

@@ -1,30 +1,73 @@
-const express = require("express");
-const router = express();
-const client=require('../../db')
-const bcrypt = require("bcryptjs");
-router.post("/", async (req, res) => {
-try {
-    const { name, email, hashed_password, role, org_id } = req.body;
-    const sql = `insert into users(name,
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const { User } = require('../../db');  
+const { Org } = require('../../db');  
+
+const router = express.Router();
+module.exports = (dataStore) => {
+router.post('/registerUser', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
+
+    const hashed_password = await bcrypt.hash(password, 5);
+    const newUser = await User.create({
+      name,
       email,
       hashed_password,
-      role,
-      org_id ) values($1,$2,$3,$4,$5) returning *`;
-   const emailExists= client.query(`select email from users where email=$1`, [email])
-   if(emailExists.rows) throw ('Email already exists')
-    const pswrd = await bcrypt.hash(hashed_password, 3);
-    
-    client
-      .query(sql, [name, email, pswrd, role, org_id])
-      .then((data) => res.status(202).json(data.rows[0]));
-} catch (error) {
-    console.log(error);
-    
-}
-});
-// "name":"mousab tamari",
-//    "email":"mousabtamari0799@gmail.com",
-//     "hashed_password":"qvolm-MT99",
-//    "role":"member",
-//    "org_id":null
-module.exports = router;
+      role: 'member',           
+      join_request_status: 'none',
+      organization_id: null,
+      join_request_org_id: null,
+      total_cb: 0
+    });
+
+    const userResponse = {
+      acc_id: newUser.acc_id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      organization_id: newUser.organization_id
+    };
+
+    res.status(201).json(userResponse);
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+
+})
+router.post('/registerOrg', async (req, res) => {
+  const { name, email,password, description, location, is_private, link } = req.body;
+const hashed_password = await bcrypt.hash(password, 5);
+  const existingOrg = await Org.findOne({ where: { email } });
+  if (existingOrg) {
+    return res.status(409).json({ error: 'Email already registered for an organization' });
+  }
+  if (!name || !email || !hashed_password) {
+    return res.status(400).json({ error: 'Name, email, and password are required' });
+  }
+
+  try {
+    const newOrg = await Org.create({
+      name,
+      email,
+      hashed_password,
+      description,
+      location,
+      is_private,
+      link,
+    });
+    dataStore.orgData.push(newOrg.get({ plain: true }));
+    res.status(201).json(newOrg.get({ plain: true }));
+  } catch (error) {
+    console.error('Error creating organization:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+})
+return router;
+};

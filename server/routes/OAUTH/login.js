@@ -1,38 +1,49 @@
-const client = require("../../db");
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-router.post("/", async (req, res) => {
-  try {
-    const { email, name, password } = req.body;
-    const result = await client.query("select * from users where email=$1", [
-      email,
-    ]);
-    console.log(result.rows[0]);
+const { User } = require("../../db"); // Using the Sequelize User model
 
-    if (!result.rows[0]) {
-      throw "Email Doesn't Exist";
+router.post("/", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(404).json({ error: "Email does not exist" });
     }
-    const hashedpswrd = await bcrypt.compare(
-      password,
-      result.rows[0].hashed_password
-    );
-    if (!hashedpswrd) throw "Wrong Password";
-    const accessJWT = jwt.sign(
+
+    const validPassword = await bcrypt.compare(password, user.hashed_password);
+    if (!validPassword) {
+      return res.status(401).json({ error: "Incorrect password" });
+    }
+
+    const token = jwt.sign(
       {
-        email: result.rows[0].email,
-        _id: result.rows[0].id,
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        organization_id: user.organization_id
       },
       process.env.MY_SECRET_KEY,
-      {
-        expiresIn: "24h",
-      }
+      { expiresIn: "24h" }
     );
-    res.status(201).json(accessJWT);
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        organization_id: user.organization_id
+      }
+    });
   } catch (error) {
-    console.log(error);
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Server error during login" });
   }
 });
+
 module.exports = router;

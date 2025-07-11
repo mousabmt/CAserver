@@ -11,32 +11,34 @@ const dataStore = {
   orgData: []
 };
 
-const client = require("./db");
 const register = require("./routes/OAUTH/register");
 const login=require('./routes/OAUTH/login')
-const org = require('./routes/models/orgModel/org');
 const auth = require("./middleware/auth");
-
+const { db } = require('./db');
 // Get Methods
+const { Org } = require('./db'); 
+
 const getOrg = async () => {
-  const query = `select * from organizations`;
-  const result = await client.query(query);
-  dataStore.orgData = result.rows;
-  
+  const orgs = await Org.findAll({where: { is_private: false } });
+  if (!orgs || orgs.length === 0) {
+    console.log("No organizations found in the database.");
+    return;
+  }
+  dataStore.orgData = orgs.map(org => org.get({ plain: true }));
 };
+
+// Routers
+app.use('/register', register(dataStore));
+app.use('/login',login)
+// app.use(auth)
 app.get('/org', (req, res) => {
   res.json(dataStore.orgData);
 });
 
-// Routers
-app.use('/register', register);
-app.use('/login',login)
-app.use(auth)
-app.use('/org', org(dataStore)); 
-
 
 async function start(PORT) {
   try {
+    await db.sync({alter:true})
     await getOrg();
     app.listen(PORT, () => { 
       console.log(`Up and Running On Port ${PORT}`);
