@@ -21,23 +21,29 @@ const org = (sequelize, DataTypes) => {
       allowNull: false
     },
     description: {
-      type: DataTypes.TEXT
+      type: DataTypes.TEXT,
+      allowNull: true
     },
     location: {
-      type: DataTypes.STRING(40)
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    phone: {
+      type: DataTypes.STRING(20),
+      allowNull: true
+    },
+    website: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    logo: {
+      type: DataTypes.STRING(255),
+      allowNull: true
     },
     is_private: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
-    },
-    link: {
-      type: DataTypes.STRING(255)
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    },
+    }
   }, {
     timestamps: true
   });

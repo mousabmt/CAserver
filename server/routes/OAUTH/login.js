@@ -3,13 +3,15 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const { User } = require("../../db"); // Using the Sequelize User model
+const { User, userCollection, orgCollection } = require("../../db"); // Using the Sequelize User model
 
 router.post("/", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { email } });
+    const users=await userCollection.read(null,{where:{email}})
+    const orgs=await orgCollection.read(null,{where:{email}})
+const user = users.length ? users[0] : orgs.length ? orgs[0] : null;
 
     if (!user) {
       return res.status(404).json({ error: "Email does not exist" });
@@ -25,20 +27,13 @@ router.post("/", async (req, res) => {
         id: user.id,
         email: user.email,
         role: user.role,
-        organization_id: user.organization_id
+        organization_id: user.organization_id || null
       },
-      process.env.MY_SECRET_KEY,
-      { expiresIn: "24h" }
+      process.env.MY_SECRET_KEY
     );
-
     res.status(200).json({
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        organization_id: user.organization_id
-      }
+      user:user
     });
   } catch (error) {
     console.error("Login error:", error);

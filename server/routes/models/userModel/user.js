@@ -11,6 +11,11 @@ const user = (sequelize, DataTypes) => {
       type: DataTypes.STRING(50),
       allowNull: false
     },
+    username: {
+      type: DataTypes.STRING(30),
+      allowNull: false,
+      unique: true
+    },
     email: {
       type: DataTypes.STRING(50),
       allowNull: false,
@@ -20,30 +25,54 @@ const user = (sequelize, DataTypes) => {
       type: DataTypes.STRING(255),
       allowNull: false
     },
+    role: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      defaultValue: 'user'
+    },
+    role_title: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    location: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    skills: {
+      type: DataTypes.TEXT, 
+      allowNull: true
+    },
+    phone: {
+      type: DataTypes.STRING(20),
+      allowNull: false
+    },
+    profile_picture: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    bio: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     total_cb: {
       type: DataTypes.INTEGER,
       defaultValue: 0
     },
-    role: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
-      defaultValue: 'member'
+    org_cb:{
+type:DataTypes.INTEGER,
+defaultValue:0
     },
     organization_id: {
       type: DataTypes.INTEGER,
-      allowNull: true
-    },
-        join_request_status: {
-      type: DataTypes.ENUM('none', 'pending', 'rejected', 'accepted'),
-      allowNull: false,
-      defaultValue: 'none'
-    },
-    join_request_org_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      references: {
+        model:'organizations',
+        key: 'org_id'
+      }
+      
     }
   }, {
-    timestamps: true 
+    timestamps: true
   });
 
   return User;
