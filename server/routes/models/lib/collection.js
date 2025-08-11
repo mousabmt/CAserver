@@ -2,17 +2,18 @@ class Collection {
   constructor(model) {
     this.model = model;
   }
-
-async read(id = null, options = {}) {
+async read(id = null, options = null) {
   try {
     if (id) {
       return await this.model.findOne({
         where: { [this.model.primaryKeyAttribute]: id },
-        ...options
+        ...(options || {})
       });
-    } else {
+    }
+    if (options) {
       return await this.model.findAll(options);
     }
+    return await this.model.findAll();
   } catch (error) {
     console.error("Error reading record:", error.message);
     return null;
@@ -51,16 +52,22 @@ async update(id, obj, options = {}) {
 }
 
 
-  async delete(id) {
-    try {
+async delete(id = null, options = {}) {
+  try {
+    if (id) {
       return await this.model.destroy({
-        where: { [this.model.primaryKeyAttribute]: id }
+        where: { [this.model.primaryKeyAttribute]: id },
+        ...options
       });
-    } catch (error) {
-      console.error("Error deleting record:", error.message);
-      return null;
+    } else {
+      return await this.model.destroy(options);
     }
+  } catch (error) {
+    console.error("Error deleting record:", error.message);
+    return null;
   }
+}
+
 }
 
 module.exports = Collection;

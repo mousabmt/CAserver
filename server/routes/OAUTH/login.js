@@ -24,10 +24,11 @@ const user = users.length ? users[0] : orgs.length ? orgs[0] : null;
 
     const token = jwt.sign(
       {
-        id: user.id,
+        id: user.acc_id || user.org_id,
         email: user.email,
         role: user.role,
-        organization_id: user.organization_id || null
+        organization_id: user.organization_id || user.org_id,
+        title:user.name
       },
       process.env.MY_SECRET_KEY
     );

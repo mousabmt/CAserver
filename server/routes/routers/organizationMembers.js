@@ -1,10 +1,8 @@
 const auth = require('../../middleware/auth')
-const isOwner = require('../../middleware/isOwner')
+const inOrg = require('../../middleware/inOrg')
 
 const router=require('express').Router()
-router.get('/',auth,isOwner,async (req,res)=>{
-    res.json({
-        message:"hi"
-    })
+router.get('/:organization_ID',auth,inOrg,async (req,res)=>{
+
 })
 module.exports=router
