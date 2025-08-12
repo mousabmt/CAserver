@@ -26,7 +26,7 @@ const user = users.length ? users[0] : orgs.length ? orgs[0] : null;
       {
         id: user.acc_id || user.org_id,
         email: user.email,
-        role: user.role,
+        role: user.role || 'org',
         organization_id: user.organization_id || user.org_id,
         title:user.name
       },

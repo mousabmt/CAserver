@@ -53,7 +53,8 @@ const usersData = require('./routes/routers/usersData');
 const { Org, db } = require('./db');
 const organizationLeaders = require('./routes/routers/organizationMembers');
 const joinReqs = require('./routes/routers/joinReqs'); 
-const notifications=require('../server/routes/routers/notifications')
+const notifications=require('../server/routes/routers/notifications');
+const upload = require("./config/upload");
 
 app.get('/orgs', async (req, res) => {
   const orgs = await Org.findAll({ where: { is_private: false } });
@@ -77,7 +78,14 @@ app.use('/join-req', joinReqs);
 app.use('/delete', accDeletion);
 app.use('/notifications',notifications)
 app.use('/org-tasks', organizationLeaders);
-
+app.put('/:account_id'||'/:organization_ID',auth,upload.single('image'),async (req,res)=>{
+  if(!req.file){
+    return res.status(400).json({
+      error:"An error occured"
+    })
+  }
+  console.log(req.file);
+})
 // Start server
 async function start() {
   try {
