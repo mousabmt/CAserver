@@ -1,13 +1,13 @@
 'use strict';
 const { getIO } = require('../../module/socket')
-const { userCollection, joinReqCollection, orgCollection, User } = require('../../db');
+const { userCollection, joinReqCollection, orgCollection, User } = require('../models/lib/db');
 const { param, validationResult, body } = require('express-validator');
 const isOwner = require('../../middleware/isOwner');
 const auth = require('../../middleware/auth');
 const inOrg = require('../../middleware/inOrg');
 const { Router } = require('express');
-const { userNotif_obj_ } = require('../../db');
-const { orgNotif_obj_ } = require('../../db');
+const { userNotif_obj_ } = require('../models/lib/db');
+const { orgNotif_obj_ } = require('../models/lib/db');
 const router = Router();
 const socket  = getIO()
 router.post(

@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const { User, userCollection, orgCollection } = require("../../db"); // Using the Sequelize User model
+const { User, userCollection, orgCollection } = require("../models/lib/db"); // Using the Sequelize User model
 
 router.post("/", async (req, res) => {
   const { email, password } = req.body;

@@ -12,16 +12,16 @@ if (process.env.NODE_ENV === 'test') {
   client = new Sequelize(process.env.DATABASE_URL, { logging: false });
 }
 
-const user  = require('./module/socket/userModel/user')(client, DataTypes);
-const org   = require('./module/socket/orgModel/org')(client, DataTypes);
-const joinReq = require('./module/socket/join_req/joining_reqs')(client, DataTypes);
-const PasswordResetModel = require('./module/socket/passwordModel/passwordReset')(client, DataTypes);
+const user  = require('../../../module/socket/userModel/user')(client, DataTypes);
+const org   = require('../../../module/socket/orgModel/org')(client, DataTypes);
+const joinReq = require('../../../module/socket/join_req/joining_reqs')(client, DataTypes);
+const PasswordResetModel = require('../../../module/socket/passwordModel/passwordReset')(client, DataTypes);
 
 // ✅ correct requires
-const userNotifications = require('./module/socket/notificationsModel/userNotifications')(client, DataTypes);
-const orgNotifications  = require('./module/socket/notificationsModel/orgNotifications')(client, DataTypes);
+const userNotifications = require('../../../module/socket/notificationsModel/userNotifications')(client, DataTypes);
+const orgNotifications  = require('../../../module/socket/notificationsModel/orgNotifications')(client, DataTypes);
 
-const Collection = require('./routes/models/lib/collection');
+const Collection = require('./collection');
 
 const orgObj   = new Collection(org);
 const userObj  = new Collection(user);

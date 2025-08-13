@@ -1,7 +1,7 @@
 const auth = require('../../middleware/auth');
 const router = require('express').Router();
 const { param, validationResult } = require('express-validator');
-const { userCollection, orgCollection } = require('../../db');
+const { userCollection, orgCollection } = require('../models/lib/db');
 
 router.delete(
   '/:account_id',

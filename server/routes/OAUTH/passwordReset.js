@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { body, validationResult } = require('express-validator');
-const { PasswordReset, orgCollection, userCollection } = require('../../db');
+const { PasswordReset, orgCollection, userCollection } = require('../models/lib/db');
 const bcrypt = require('bcryptjs');
 // check OTP
 router.post(

@@ -9,7 +9,8 @@ const http = require('http');
 const server = http.createServer(app);
 const socket = require('./module/socket');
 const io = socket.init(server);
-
+// services
+const uploadImg=require('./services/uploadSingleImg')
 // Middlewares
 app.use(express.json());
 app.use(cors());
@@ -50,7 +51,7 @@ const resetCode = require('./routes/OAUTH/resetCode');
 const passwordReset = require('./routes/OAUTH/passwordReset');
 const accDeletion = require('./routes/routers/accDeletion');
 const usersData = require('./routes/routers/usersData');
-const { Org, db } = require('./db');
+const { Org, db, userCollection, orgCollection } = require('./routes/models/lib/db');
 const organizationLeaders = require('./routes/routers/organizationMembers');
 const joinReqs = require('./routes/routers/joinReqs'); 
 const notifications=require('../server/routes/routers/notifications');
@@ -78,13 +79,30 @@ app.use('/join-req', joinReqs);
 app.use('/delete', accDeletion);
 app.use('/notifications',notifications)
 app.use('/org-tasks', organizationLeaders);
-app.put('/:account_id'||'/:organization_ID',auth,upload.single('image'),async (req,res)=>{
+app.put('/:account_id',auth,upload.single('image'),async (req,res)=>{
+  const id=req.params.account_id
   if(!req.file){
     return res.status(400).json({
       error:"An error occured"
     })
   }
-  console.log(req.file);
+  console.log(req.file.path);
+  
+const url = await uploadImg(req.file.path)
+if(req?.user?.role==="user"){
+userCollection.update(id,{profile_picture:url})
+}
+else if(req?.user?.role==="org"){
+  orgCollection.update(id,{logo:url})
+}
+else {
+  return res.status(400).json({
+    error:"Failed to update the image"
+  })
+}
+return res.status(200).json({
+  message:"Image updated successfully"
+})
 })
 // Start server
 async function start() {

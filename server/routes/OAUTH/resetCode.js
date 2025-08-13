@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const nodemailer = require('nodemailer');
-const { PasswordReset, userCollection,orgCollection } = require('../../db');
+const { PasswordReset, userCollection,orgCollection } = require('../models/lib/db');
 const validateEmail = require('../../middleware/validateEmail');
 const rateLimiterPerEmail = require('../../middleware/rateLimiterPerEmail');
 

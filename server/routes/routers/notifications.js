@@ -1,4 +1,4 @@
-const { orgNotif_obj_, userNotif_obj_ } = require('../../db');
+const { orgNotif_obj_, userNotif_obj_ } = require('../models/lib/db');
 const auth = require('../../middleware/auth');
 const router = require('express').Router();
 

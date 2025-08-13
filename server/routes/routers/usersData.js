@@ -1,5 +1,5 @@
 const router=require('express').Router()
-const {User,userCollection}=require('../../db');
+const {User,userCollection}=require('../models/lib/db');
 const auth = require('../../middleware/auth');
 router.get('/', async (req, res) => {
 const users = await User.findAll({
