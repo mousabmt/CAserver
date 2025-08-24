@@ -43,6 +43,10 @@ const org = (sequelize, DataTypes) => {
     is_private: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
+    },
+    role:{
+      type:DataTypes.TEXT,
+      defaultValue:'org'
     }
   }, {
     timestamps: true

@@ -9,7 +9,6 @@ const { Router } = require('express');
 const { userNotif_obj_ } = require('../models/lib/db');
 const { orgNotif_obj_ } = require('../models/lib/db');
 const router = Router();
-const socket  = getIO()
 router.post(
   '/:account_id/:organization_ID',
   auth,
@@ -158,7 +157,7 @@ router.put(
         return res.status(409).json({ error: 'User already belongs to an organization' });
       }
 
-      const acceptedUser = await userCollection.update(account_id, { organization_id: organization_ID });
+      const acceptedUser = await userCollection.update(account_id, { organization_id: organization_ID,role:"member" });
 
       await joinReqCollection.update(null, { status: 'accepted' }, {
         where: { acc_id: account_id, org_id: organization_ID }
@@ -178,7 +177,7 @@ await userNotif_obj_.create({
   message: `You were accepted into the organization ${org.name}.`,
   type: 'accepted', 
 });
-      await orgNotif_obj_.update(null, { type:"accepted" }, { where: { org_id: organization_ID,user_id:account_id } });
+      await orgNotif_obj_.update(null, { type:"accepted",user_id:account_id }, { where: { org_id: organization_ID } });
 
       return res.status(200).json({
         message: `${acceptedUser.name} was accepted successfully into ${org.name}.`
@@ -198,8 +197,7 @@ router.get(
   async (req, res) => {
     const { organization_ID } = req.params;
     const getReq = await joinReqCollection.read(null, {
-      where: { org_id: organization_ID },
-      include: [{ model: User, attributes: ['name'] }]
+      where: { org_id: organization_ID ,status:"pending"}
     });
     if (!getReq) {
       return res.status(404).json({ error: 'No join requests' });

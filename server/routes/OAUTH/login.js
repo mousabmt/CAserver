@@ -21,12 +21,11 @@ const user = users.length ? users[0] : orgs.length ? orgs[0] : null;
     if (!validPassword) {
       return res.status(401).json({ error: "Incorrect password" });
     }
-
     const token = jwt.sign(
       {
         id: user.acc_id || user.org_id,
         email: user.email,
-        role: user.role || 'org',
+        role: user.role,
         organization_id: user.organization_id || user.org_id,
         title:user.name
       },

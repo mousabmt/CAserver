@@ -64,21 +64,27 @@ app.get('/orgs', async (req, res) => {
   }
   res.status(200).json({ orgs });
 });
-
+app.get("/profile/:id",auth,async(req,res)=>{
+  const {id}=req.params
+  if(req?.user?.role=='org'){
+    const org=await orgCollection.read(id,{attributes:{exclude:['hashed_password']}})
+    return res.status(200).json(org)
+  }else{
+    const user=await userCollection.read(id,{attributes:{exclude:['hashed_password']}})
+    return res.status(200).json(user)
+  }
+})
 app.use('/users', usersData);
 app.use('/register', register);
 app.use('/login', login);
 app.use('/resetCode', resetCode);
 app.use('/password-reset', passwordReset);
 
-app.use(auth);
-app.get('/auth', (req, res) => {
-  return res.status(200).json({ message: 'authorized' });
-});
 app.use('/join-req', joinReqs);
 app.use('/delete', accDeletion);
 app.use('/notifications',notifications)
-app.use('/org-tasks', organizationLeaders);
+
+app.use('/org-members', organizationLeaders);
 app.put('/:account_id',auth,upload.single('image'),async (req,res)=>{
   const id=req.params.account_id
   if(!req.file){
@@ -87,8 +93,8 @@ app.put('/:account_id',auth,upload.single('image'),async (req,res)=>{
     })
   }
   console.log(req.file.path);
-  
-const url = await uploadImg(req.file.path)
+
+  const url = await uploadImg(req.file.path)
 if(req?.user?.role==="user"){
 userCollection.update(id,{profile_picture:url})
 }
