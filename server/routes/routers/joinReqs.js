@@ -1,6 +1,6 @@
 'use strict';
 const { getIO } = require('../../module/socket')
-const { userCollection, joinReqCollection, orgCollection, User } = require('../models/lib/db');
+const { userCollection, joinReqCollection, orgCollection, memberCollection } = require('../models/lib/db');
 const { param, validationResult, body } = require('express-validator');
 const isOwner = require('../../middleware/isOwner');
 const auth = require('../../middleware/auth');
@@ -158,15 +158,15 @@ router.put(
       }
 
       const acceptedUser = await userCollection.update(account_id, { organization_id: organization_ID,role:"member" });
+      if (!acceptedUser) {
+        return res.status(400).json({ error: 'Something wrong happened while accepting this user.' });
+      }
 
       await joinReqCollection.update(null, { status: 'accepted' }, {
         where: { acc_id: account_id, org_id: organization_ID }
       });
 
-      if (!acceptedUser) {
-        return res.status(400).json({ error: 'Something wrong happened while accepting this user.' });
-      }
-
+await memberCollection.create({acc_id:account_id,org_id:organization_ID})
  const io = getIO();
 io.to(account_id.toString()).emit('joinReqResponse', {
   status: "accepted",

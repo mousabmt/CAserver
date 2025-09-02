@@ -2,20 +2,23 @@ class Collection {
   constructor(model) {
     this.model = model;
   }
-async read(id = null, options = null) {
+async read(id = null, options = {}) {
   try {
-    if (id) {
+    if (id !== null) {
+      const { where = {}, ...rest } = options || {};
       return await this.model.findOne({
-        where: { [this.model.primaryKeyAttribute]: id },
-        ...(options || {})
+        where: { [this.model.primaryKeyAttribute]: id, ...where },
+        raw: true,  
+        ...rest
       });
     }
-    if (options) {
-      return await this.model.findAll(options);
-    }
-    return await this.model.findAll();
+
+    return await this.model.findAll({
+      raw: true,  
+      ...options
+    });
   } catch (error) {
-    console.error("Error reading record:", error.message);
+    console.error("Error reading record:", error);
     return null;
   }
 }

@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     member_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     team_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: { model: 'teams', key: 'team_id' },
       onUpdate: 'CASCADE', onDelete: 'CASCADE'
     },

@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       onUpdate: 'CASCADE', onDelete: 'CASCADE'
     },
     cb_points: { type: DataTypes.BIGINT, defaultValue: 0 },
-    status: { type: DataTypes.ENUM('active', 'suspended', 'removed'), defaultValue: 'active' },
+    status: { type: DataTypes.ENUM('active', 'suspended'), defaultValue: 'active' },
     joined_at: { type: DataTypes.DATE, defaultValue: sequelize.fn('NOW') },
     left_at: { type: DataTypes.DATE, allowNull: true },
     warns: { type: DataTypes.INTEGER, defaultValue: 0 }

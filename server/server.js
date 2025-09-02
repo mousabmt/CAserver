@@ -56,6 +56,7 @@ const organizationLeaders = require('./routes/routers/organizationMembers');
 const joinReqs = require('./routes/routers/joinReqs'); 
 const notifications=require('../server/routes/routers/notifications');
 const upload = require("./config/upload");
+const isOwner = require("./middleware/isOwner");
 
 app.get('/orgs', async (req, res) => {
   const orgs = await Org.findAll({ where: { is_private: false } });
@@ -85,7 +86,7 @@ app.use('/delete', accDeletion);
 app.use('/notifications',notifications)
 
 app.use('/org-members', organizationLeaders);
-app.put('/:account_id',auth,upload.single('image'),async (req,res)=>{
+app.put('/:account_id',auth,isOwner,upload.single('image'),async (req,res)=>{
   const id=req.params.account_id
   if(!req.file){
     return res.status(400).json({
